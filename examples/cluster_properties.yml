@@ -1,0 +1,15 @@
+environments: 'dev' 'test' 'prod'
+
+# Dev environment properties.
+dev:
+  hcat:
+    metastore:
+      uri: 'thrift://your_cluster_domain.net:9083'
+      principal: 'hive/your_cluster_domain.net@COMPANY.COM'
+  hive2:
+    jdbc:
+      url: 'jdbc:hive2://your_cluster_domain.net:10000/default;ssl=true;sslTrustStore=/path/to/truststore.san.jks;trustStorePassword=password'
+    server:
+      principal: 'hive/your_cluster_domain.net@COMPANY.COM'
+  oozie:
+    url: 'https://your_cluster_domain.net/oozie'
