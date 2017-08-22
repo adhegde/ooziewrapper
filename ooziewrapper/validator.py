@@ -1,5 +1,9 @@
 '''Define custom error classes that raise when user inputs an invalid configuration.'''
 
+# Import standard modules.
+import sys
+from pathlib import Path
+
 # Import external dependencies.
 import yaml
 
@@ -14,12 +18,27 @@ class ListError(TypeError):
         super(ListError, self).__init__(self.message)
 
 
+class PropertiesError(Exception):
+    '''Raise when supplied properties file fails specified tests.'''
+    ## WORK ON THIS
+
+    def __init__(self, properties, message = None):
+
+        if message is not None:
+            self.message = message
+        else:
+            self.message = "There was a problem with your properties file."
+        super(PropertiesError, self).__init__(self.message)
+
+
 class InvalidEnvironment(Exception):
     '''Raise when user specifies an invalid environment.'''
 
-    def __init__(self):
+    def __init__(self, valid_environments):
 
-        self.message = "Must be 'dev', 'test', or 'prod'."
+        self.message = "Invalid environment specified. " + \
+            "Valid environments are " + str(valid_environments) + \
+            " as per specified cluster properties.."
         super(InvalidEnvironment, self).__init__(self.message)
 
 
@@ -56,11 +75,10 @@ class InvalidJobTypeException(Exception):
 class FileNotFound(Exception):
     '''Raise when users specify a file dependency that the script cannot find.'''
 
-    def __init__(self, input_file):
+    def __init__(self, input_file, file_path):
 
-        self.pwd = "PWD PLACEHOLDER" # ADD HERE!
         self.message = "Cannot find dependency file " + input_file + ".\n" + \
-            "Currently looking in " + pwd
+            "Currently looking in " + file_path
         super(FileNotFound, self).__init__(self.message)
 
 
@@ -85,24 +103,25 @@ class FileRequiredError(Exception):
 
 
 # Begin utility functions called by template.py to validate job pieces.
-def validate_environment(environment):
-    '''Check that valid environment is specified.'''
-
-    if environment not in ['dev','test','prod']:
-        raise InvalidEnvironment()
-
-
 def validate_properties(properties, environment):
     '''Check that all necessary cluster properties are listed.'''
     ## ADD MORE TO DOCSTRING. WHAT PROPERTIES SHOULD BE REQUIRED?
 
     with open(properties) as f:
-        cluster_properties = yaml.safe_load(f)[environment]
+        all_properties = yaml.safe_load(f)
+
+    try:
+        valid_environments = all_properties['environments']
+    except KeyError:
+        message = "Properties file must specify 'environments'."
+        raise PropertiesError(all_properties, message)
+
+    if environment not in valid_environments:
+        raise InvalidEnvironment(valid_environments)
+
+    cluster_properties = all_properties[environment]
 
     # Check that cluster_properties contains all necessary keys.
-    for key in cluster_properties:
-        print(cluster_properties)
-        break
 
     return cluster_properties
 
@@ -142,13 +161,10 @@ def validate_job(job, properties):
         if type(job['files']) != list:
             raise ListError('files')
 
-
     # Check if all workflow files are found locally.
-    #for f in job['files']:
-
-    #    # SPECIFY DIRECTORY
-    #    if not pathlib.Path(f).is_file():
-    #        raise FileNotFound(f)
+    for f in job['files']:
+        if not Path(sys.path[0] + '/' + f).is_file():
+            raise FileNotFound(f, sys.path[0])
 
     # Scrub job names?
     # Definitely make sure that the dependency lists correspond to actual job names.

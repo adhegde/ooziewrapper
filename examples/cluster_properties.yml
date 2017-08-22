@@ -1,4 +1,4 @@
-environments: 'dev' 'test' 'prod'
+environments: ['dev','test','prod']
 
 # Dev environment properties.
 dev:

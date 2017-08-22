@@ -16,10 +16,9 @@ import xmlfactory
 class OozieWrapper(object):
 
     # THINGS TO TRACK
-    # ! Wrap things in a container.
     # Figure out if there is more to Hive actions.
     # Make sure ${wfDir} is specified in properties file. Check in on this.
-    # Should subprocess.call be changed to suhttps://twitter.com/pyconbprocess.Popen?
+    # Should subprocess.call be changed to subprocess.Popen?
     # Generate Oozie properties file.
     # Add error handling to submit method.
     # How to trackdown logs and output them to a standard location.
@@ -102,7 +101,8 @@ class OozieWrapper(object):
         '''If applicable, sync remote repository with necessary code files.'''
 
         if git_repo is not None:
-            pass
+            sync = 'git pull ' + git_repo
+            subprocess.call(sync.split(' '))
 
 
     def submit(self):
@@ -116,7 +116,7 @@ class OozieWrapper(object):
         # ADD GIT SYNC HERE.
         # ADD CHECK IF DIRECTORY EXISTS.
 
-        # Write xml to files.
+        # Write xml to files, in same directory as script is called.
         for workflow in self.xml:
             if workflow[0] == 'forked':
                 file_name = self.job_properties['name'] + '.xml'

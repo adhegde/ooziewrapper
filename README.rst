@@ -2,6 +2,11 @@
 
 Full documentation and a user's guide for are found [here]().
 
+## Installation
+
+pypi: pip install ooziewrapper
+git: pip install git+git@github.com:anthonyjgatti/ooziewrapper.git
+
 ## Why was `ooziewrapper` written?
 
 I created `ooziewrapper` because I wanted a way to manage configuration of Oozie

@@ -2,12 +2,11 @@
 import sys
 sys.path.append('/home/anthony/code/ooziewrapper')
 
+
 from ooziewrapper.template import OozieWrapper
 
-# List location of cluster properties file. For now, it's in the same directory
-# as this example script. Best practice is to keep this in version control and
-# check out / version as desired in this script.
-properties = '~/code/ooziewrapper/examples/cluster_properties.yml'
+# List location of cluster properties file.
+properties = '/home/anthony/code/ooziewrapper/examples/cluster_properties.yml'
 
 # Implement shared properties. This is required and must contain 'name' and 'queue'.
 # 'queue' is a resource pool you've defined on your Hadoop cluster.
@@ -18,12 +17,6 @@ shared = {
 }
 
 # Define jobs.
-
-# In this example, as specified by the dependencies, job0 and job1 run first,
-# then job2 and job3 run, then job4 runs. You cannot actually specify a cyclic
-# dependency that breaks the DAG specification because you must refer to a
-# Python dictionary that was specified above in the code.
-
 job0 = {
     'jobType': 'shell',
     'jobName': 'spark_transform_0',
@@ -53,7 +46,7 @@ job3 = {
 job4 = {
     'jobType': 'hive',
     'jobName': 'hive_transform_4',
-    'files': ['hive_transform_4.sql'],
+    'files': ['hive_transform4.sql'],
     'dependsOn': [job2, job3]
 }
 
@@ -62,9 +55,8 @@ test = OozieWrapper(
     shared_properties = shared,
     job_list = [job0, job1, job2, job3, job4],
     properties_path = properties,
-    git_repo = "git@github.com:organization/my_project.git" # Optional parameter defaulting to None.
-) # This arugment is intended to point the remote repository for your code. Git is currently the only
-# supported version control software.
+    git_repo = "https://github.com/anthonyjgatti/spark-wordcount-workflow.git"
+)
 
 test.submit()
 test.run()
