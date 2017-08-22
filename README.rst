@@ -27,37 +27,37 @@ Goals of `ooziewrapper` (to name a few)
 
 1. Wrap job deployment process as part of development.
 
-	a. Common observed development pattern:
-		- Developer writes code in standalone script.
-		- Developer tinkers with job submission until it works.
-		- Developer spends lots of time configuring OozieWorkflow.
-		- Everything falls apart (and / or a code change occurs), start over.
+i. Common observed development pattern:
+	- Developer writes code in standalone script.
+	- Developer tinkers with job submission until it works.
+	- Developer spends lots of time configuring OozieWorkflow.
+	- Everything falls apart (and / or a code change occurs), start over.
 
-	b. With `ooziewrapper`:
-		- Developer packages all job artifacts in a directory from the start.
-		- This includes job resource configuration (critical for Spark).
-		- No latency between development and deployment (continuous integration, anyone?).
+ii. With `ooziewrapper`:
+	- Developer packages all job artifacts in a directory from the start.
+	- This includes job resource configuration (critical for Spark).
+	- No latency between development and deployment (continuous integration, anyone?).
 
 2. Configuration as code.
 
-	a. Smooth out promotion between environments.
-		- Cluster configuration is kept separate from the development process.
-		- All the developer has to do is change an input from 'test' to 'prod'.
-		- When updates happen to cluster configuration, the code will not break.
+i. Smooth out promotion between environments.
+	- Cluster configuration is kept separate from the development process.
+	- All the developer has to do is change an input from 'test' to 'prod'.
+	- When updates happen to cluster configuration, the code will not break.
 
-	b. Scales for the future.
-		- Will make deploying jobs on multiple clusters much easier.
-		- Will transition into a cloud deployment.
+ii. Scales for the future.
+	- Will make deploying jobs on multiple clusters much easier.
+	- Will transition into a cloud deployment.
 
 3. Increase speed of development:
 
-	a. Get rid of the UI.
-		- UIs require manual input that could just as easily be typed in a text document.
-		- UI configuration and input are hard to transfer between environments.
-		- The UI is completely unaware of job dependencies.
+i. Get rid of the UI.
+	- UIs require manual input that could just as easily be typed in a text document.
+	- UI configuration and input are hard to transfer between environments.
+	- The UI is completely unaware of job dependencies.
 
-	b. Seamlessly integrate code changes.
-		- No more, "Hey did you run that with our updated configuration?"
+ii. Seamlessly integrate code changes.
+	- No more, "Hey did you run that with our updated configuration?"
 
 Why Wrap Oozie and Not Use Airflow, etc?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
