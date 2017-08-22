@@ -55,7 +55,8 @@ test = OozieWrapper(
     shared_properties = shared,
     job_list = [job0, job1, job2, job3, job4],
     properties_path = properties,
-    git_repo = "https://github.com/anthonyjgatti/spark-wordcount-workflow.git"
+    git_repo = None
+    # git_repo = "https://github.com/anthonyjgatti/spark-wordcount-workflow.git"
 )
 
 test.submit()

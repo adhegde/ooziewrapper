@@ -10,6 +10,7 @@ import subprocess
 import networkx as nx
 
 # Load custom modules.
+import propertiesfactory
 import validator
 import xmlfactory
 
@@ -40,6 +41,7 @@ class OozieWrapper(object):
         self.job_properties = shared_properties
         self.jobs = {}
         self.conclusion_email = 'email' in self.job_properties
+        self.submitted = False
 
         # Check that job_list is a list.
         if type(job_list) != list:
@@ -70,35 +72,11 @@ class OozieWrapper(object):
         # Instantiate job layout as a graph, with nodes bucketed by job order.
         self._generateDAG()
 
-        # Create xmlFactory object, psasing cluster properties.
-        self.xmlFactory = xmlfactory.Factory(self.cluster_properties, self.job_properties)
-
-        # Generate xml
-        self.xml = []
-        for job in self.jobs:
-            if self.jobs[job]['jobType'] == 'shell':
-                self.xml.append((self.jobs[job]['jobKey'], self.xmlFactory._oozieConfigShell(job, self.jobs)))
-            elif self.jobs[job]['jobType'] == 'hive':
-                self.xml.append((self.jobs[job]['jobKey'], self.xmlFactory._oozieConfigHive(job, self.jobs)))
-
-        # Generate execution with subworkflows, referencing other workflows.
-        self.xml.append(('forked', self._createForks()))
-
-        # Set submission status.
-        self._submitted = False
-
-
-        ###################
-        #### test zone ####
-        ###################
-
-
-        #for element in xml:
-        #   print(element[1] + '\n')
-
 
     def git_sync(self, git_repo):
         '''If applicable, sync remote repository with necessary code files.'''
+
+        # BETTER TO USE GITHUB API OF SOME KIND?
 
         if git_repo is not None:
             sync = 'git pull ' + git_repo
@@ -113,35 +91,69 @@ class OozieWrapper(object):
         are successfully submitted.
         '''
 
-        # ADD GIT SYNC HERE.
-        # ADD CHECK IF DIRECTORY EXISTS.
-
-        # Write xml to files, in same directory as script is called.
-        for workflow in self.xml:
-            if workflow[0] == 'forked':
-                file_name = self.job_properties['name'] + '.xml'
-            else:
-                file_name = workflow[0] + '.xml'
-            with open(file_name , 'w') as f:
-                f.write(workflow[1])
-
-        # Initate submission variables - user, workflows, and scripts.
+        # Initate submission variables - directory template, user, workflows, and scripts.
         run_user = subprocess.check_output('whoami', stderr=subprocess.STDOUT)
         run_user = run_user.decode('utf-8').strip('\n')
+        dir_template = '/user/' + run_user + '/oozie/workspaces/' + \
+            self.job_properties['name'] + '/subworkflows/'
+
+        # Generate propertyFactory and xmlFactory objects, passing cluster and job properties.
+        self.propertyFactory = propertiesfactory.Factory(
+            run_user,
+            dir_template,
+            self.cluster_properties,
+            self.job_properties
+        )
+        self.xmlFactory = xmlfactory.Factory(self.job_properties)
+
+        # Generate xml and properties files.
+        self.xml = []; self.properties = []
+        for job in self.jobs:
+
+            if self.jobs[job]['jobType'] == 'shell':
+                self.xml.append((self.jobs[job]['jobKey'], self.xmlFactory._oozieConfigShell(job, self.jobs)))
+
+            elif self.jobs[job]['jobType'] == 'hive':
+                self.xml.append((self.jobs[job]['jobKey'], self.xmlFactory._oozieConfigHive(job, self.jobs)))
+
+            self.properties.append((self.jobs[job]['jobKey'], self.propertyFactory._make_job_properties(job, self.jobs)))
+
+        # Generate execution with subworkflows, referencing other workflows.
+        self.xml.append(('forked', self._createForks()))
+        self.properties.append(('forked', ''))
+
+        # Write xml to files, in same directory as script is called.
+        for workflow, properties in zip(self.xml, self.properties):
+
+            if workflow[0] == 'forked':
+                file_name = self.job_properties['name']
+            else:
+                file_name = workflow[0]
+
+            with open(file_name + '.xml', 'w') as f:
+                f.write(workflow[1])
+            with open(file_name + '.properties', 'w') as f:
+                f.write(properties[1])
 
         # Initialize hdfs command strings for submission.
-        dir_template = '/user/' + run_user + '/oozie/workspaces/' + \
-            self.job_properties['name'] + '/scripts/'
         mkdirs = 'hdfs dfs -mkdir -p ' + \
-            ' '.join([dir_template + job for job in self.jobs])
-        put_workflows = 'hdfs dfs -put ' + ' '.join([job + '.xml' for job in self.jobs]) + \
-            ' /user/' + run_user + '/oozie/workspaces/' + self.job_properties['name']
-        put_scripts = ['hdfs dfs -put -f ' + fil + ' ' + dir_template + job if 'files' in self.jobs[job] else '' \
-            for job in self.jobs for fil in self.jobs[job]['files']]
+            ' '.join([dir_template + job for job in self.jobs]) + \
+            ' /user/' + run_user + '/oozie/workspaces/' + \
+            self.job_properties['name'] + '/main_workflow/'
+
+        put_workflows_scripts = []
+        for job in self.jobs:
+            files_string = ' '.join(self.jobs[job]['files']) if 'files' in self.jobs[job] else ''
+            put_workflows_scripts.append('hdfs dfs -put ' + job + '.xml ' + job + '.properties ' + \
+                files_string + ' ' + dir_template + job)
+
+        # Do not put main workflow on hdfs - wait for run command.
+        put_main_workflow = []
+
 
         # Submit each command via subprocess call.
         # ADD ERROR HANDLING!
-        for process in [mkdirs, put_workflows] + put_scripts:
+        for process in [mkdirs] + put_workflows_scripts + put_main_workflow:
             subprocess.call(process.split(' '))
 
         # Validate oozie workflows through cli call.
@@ -162,22 +174,23 @@ class OozieWrapper(object):
         success = True # PLACEHOLDER
         if success:
             self.workflow_name = workflow_name
-            self._submitted = True
+            self.submitted = True
 
-        # Clean up xml files.
-        for workflow in self.xml:
-            if workflow[0] == 'forked':
-                file_name = self.job_properties['name'] + '.xml'
-            else:
-                file_name = workflow[0] + '.xml'
-            os.remove(file_name)
+        # Clean up xml and properties files.
+        #for workflow in self.xml:
+        #    if workflow[0] == 'forked':
+        #        file_name = self.job_properties['name']
+        #    else:
+        #        file_name = workflow[0]
+        #    os.remove(file_name + '.xml')
+        #   os.remove(file_name + '.properties')
 
 
     def run(self):
         '''Run oozie workflow through oozie CLI'''
         # ADD LOGGING UTILITY.
 
-        if self._submitted:
+        if self.submitted:
             start_job = 'oozie job -oozie ' + self.cluster_properties['oozie']['url'] + \
                 ' -start ' + self.workflow_name
             subprocess.call(start_job.split(' '))
@@ -255,7 +268,7 @@ class OozieWrapper(object):
                 if bucket_counter[bucket + 1] > 1:
                     next_action = 'fork-' + str(bucket + 1)
                 else:
-                    next_action = [key for (b, key) in self.graph if b == (bucket + 1)][0]
+                    next_action = 'subworkflow-' + [key for (b, key) in self.graph if b == (bucket + 1)][0]
             else:
                 if self.conclusion_email:
                     next_action = "happy-kill"

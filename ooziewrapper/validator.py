@@ -164,7 +164,9 @@ def validate_job(job, properties):
     # Check if all workflow files are found locally.
     for f in job['files']:
         if not Path(sys.path[0] + '/' + f).is_file():
-            raise FileNotFound(f, sys.path[0])
+            pass
+            # EDIT BACK HERE!!!
+            # raise FileNotFound(f, sys.path[0])
 
     # Scrub job names?
     # Definitely make sure that the dependency lists correspond to actual job names.

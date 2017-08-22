@@ -1,15 +1,17 @@
+# System wide properties.
 environments: ['dev','test','prod']
 
 # Dev environment properties.
 dev:
+  edgeNode: 'your_cluster_domain123.net'
   hcat:
     metastore:
-      uri: 'thrift://your_cluster_domain.net:9083'
-      principal: 'hive/your_cluster_domain.net@COMPANY.COM'
+      uri: 'thrift://your_cluster_domain101.net:9083'
+      principal: 'hive/your_cluster_domain101.net@COMPANY.COM'
   hive2:
     jdbc:
-      url: 'jdbc:hive2://your_cluster_domain.net:10000/default;ssl=true;sslTrustStore=/path/to/truststore.san.jks;trustStorePassword=password'
+      url: 'jdbc:hive2://your_cluster_domain102.net:10000/default;ssl=true;sslTrustStore=/path/to/truststore.san.jks;trustStorePassword=password'
     server:
-      principal: 'hive/your_cluster_domain.net@COMPANY.COM'
+      principal: 'hive/your_cluster_domain102.net@COMPANY.COM'
   oozie:
-    url: 'https://your_cluster_domain.net/oozie'
+    url: 'https://your_cluster_domain103.net/oozie'
