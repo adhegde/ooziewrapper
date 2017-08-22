@@ -1,6 +1,5 @@
 '''Generate boilerplate and custom edits for properties file.'''
 
-
 class Factory(object):
 
     def __init__(self, run_user, dir_template, cluster_properties, job_properties):
@@ -33,7 +32,8 @@ class Factory(object):
         '''Generate job properties for specific job.'''
 
         this_output = self.output_properties + ['wfDir=' + self.dir_template + job]
-        this_output += self._add_libs(['x.py', 'y.py']) # EDIT HERE
+        files = jobs[job]['files'] if 'files' in jobs[job] else ''
+        this_output += self._add_libs(files)
 
         return '\n'.join(p for p in this_output) + '\n'
 

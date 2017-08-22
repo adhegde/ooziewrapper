@@ -54,24 +54,25 @@ class Factory(object):
             (2,'</kill>')]
 
 
-    def boilerplateSubworkflow(self, job, jobs, subJoin):
+    def boilerplateSubworkflow(self, run_user, job, jobs, subJoin):
         '''Generate boilerplate code xml configuration common to all sub-workflows.'''
 
-        app_path = 'ADD APP PATH HERE'
-        xml_name = 'ADD XML NAME HERE' # WE WILL NEED TO INCLUDE AN XML NAME ATTACHED TO THE JOB, I THINK???
+        app_path = '${nameNode}/user/' + str(run_user) + '/oozie/workspaces/' + \
+            self.shared_properties['name'] + '/subworkflows/' + jobs[job]['jobKey']
+        # xml_name = 'ADD XML NAME HERE' # WE WILL NEED TO INCLUDE AN XML NAME ATTACHED TO THE JOB, I THINK???
 
         return [
             (2, '<action name="subworkflow-' + jobs[job]['jobKey'] + '">'),
             (4, '<sub-workflow>'),
             (6, '<app-path>' + app_path + '</app-path>'),
-            (6, '<propagate-configuration/>'),
-            (6, '<configuration>'),
-            (8, '<property>'),
-            (10, '<name>subworkflow_' + jobs[job]['jobName'] + '</name>'),
-            (10, '<value>${wfDir}/' + xml_name + '</values>'),
-            (8, '</property>'), # WILL I WANT TO PASS ALL WORKFLOW PROPERTIES?
+            #(6, '<propagate-configuration/>'),
+            #(6, '<configuration>'),
+            #(8, '<property>'),
+            #(10, '<name>subworkflow_' + jobs[job]['jobName'] + '</name>'),
+            #(10, '<value>${wfDir}/' + xml_name + '</values>'),
+            #(8, '</property>'), # WILL I WANT TO PASS ALL WORKFLOW PROPERTIES?
             # THIS IS WHERE WE WOULD ADD MORE CONFIGURATION FOR SUBWORKFLOW.
-            (6, '</configuration>'),
+            #(6, '</configuration>'),
             (4, '</sub-workflow>'),
             (4, '<ok to="' + subJoin + '"/>'),
             (4, '<error to="kill"/>'),
@@ -87,8 +88,8 @@ class Factory(object):
             [(6,'<file>/user/oozie/share/lib-ext/hive-site.xml#hive-site.xml</file>')] # EDIT IS?
 
         config_list = self._generalBoilerplate(job, jobs) + [
-            (2,'<action name="' + jobs[job]['jobKey'] + '" cred="hcat"'), # workflow specific?
-            (4,'<shell xmlns="uri:oozie:shell-action:0.1"'),
+            (2,'<action name="' + jobs[job]['jobKey'] + '" cred="hcat">'),
+            (4,'<shell xmlns="uri:oozie:shell-action:0.1">'),
             (6,'<job-tracker>${jobTracker}</job-tracker>'),
             (6,'<name-node>${nameNode}</name-node>'),
             (6,'<exec>' + jobs[job]['files'][0] + '</exec>')] + \
@@ -112,7 +113,7 @@ class Factory(object):
         config_list = self._generalBoilerplate(job, jobs) + [
             (2,'<action name="' + jobs[job]['jobKey'] + '" cred="hcat">'),
             (4,'<hive xlmns="uri:oozie:hive-action:0.2">'),
-            (6,'<job-tracker>${jobTracker}</job-tracker'),
+            (6,'<job-tracker>${jobTracker}</job-tracker>'),
             (6,'<name-node>${nameNode}</name-node>'),
             (8,'<job-xml>/user/oozie/share/lib-ext/hive-site.xml</job-xml>'), # NOT SURE ABOU THIS?
             (6,'<configuration>'),
@@ -121,7 +122,7 @@ class Factory(object):
             (10,'<value>' + jobs[job]['queue'] + '</value>'),
             (8,'</property>'),
             (6,'</configuration>'),
-            (6,'<script>/user/oozie/share/lib-ext/' + jobs[job]['files'][0] + '</script>'), # IS THIS THE RIGHT DIR?
+            (6,'<script>${wfDir}/' + jobs[job]['files'][0] + '</script>'), # IS THIS THE RIGHT DIR?
             (4,'</hive>'),
             (4,'<ok to="end"/>'),
             (4,'<error to="kill"/>'),

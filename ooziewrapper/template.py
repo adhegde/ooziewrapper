@@ -1,3 +1,20 @@
+'''
+A friendly wrapper for oozie. Templating script that creates xml, properties,
+and an xml with subworkflows all wrapped together.
+
+THINGS TO TRACK
+===============
+Are app path and properties adequately passed to subworkflows in xmlfactory?
+Figure out if there is more to Hive actions.
+Should subprocess.call be changed to subprocess.Popen?
+Add error handling to submit method.
+How to trackdown logs and output them to a standard location.
+Add unit and integration tests.
+Build test for changes in yaml file - what to do if yaml file changes and causes a break.
+Add more actions to xmlfactory.
+Add print_dag method.
+===============
+'''
 
 # Load base modules.
 import collections
@@ -15,16 +32,6 @@ import validator
 import xmlfactory
 
 class OozieWrapper(object):
-
-    # THINGS TO TRACK
-    # Figure out if there is more to Hive actions.
-    # Make sure ${wfDir} is specified in properties file. Check in on this.
-    # Should subprocess.call be changed to subprocess.Popen?
-    # Generate Oozie properties file.
-    # Add error handling to submit method.
-    # How to trackdown logs and output them to a standard location.
-    # Add unit and integration tests.
-    # Build test for changes in yaml file - what to do if yaml file changes and causes a break.
 
     def __init__(self, environment, shared_properties, job_list, properties_path, git_repo = None):
         '''
@@ -119,7 +126,7 @@ class OozieWrapper(object):
             self.properties.append((self.jobs[job]['jobKey'], self.propertyFactory._make_job_properties(job, self.jobs)))
 
         # Generate execution with subworkflows, referencing other workflows.
-        self.xml.append(('forked', self._createForks()))
+        self.xml.append(('forked', self._createForks(run_user)))
         self.properties.append(('forked', ''))
 
         # Write xml to files, in same directory as script is called.
@@ -138,8 +145,7 @@ class OozieWrapper(object):
         # Initialize hdfs command strings for submission.
         mkdirs = 'hdfs dfs -mkdir -p ' + \
             ' '.join([dir_template + job for job in self.jobs]) + \
-            ' /user/' + run_user + '/oozie/workspaces/' + \
-            self.job_properties['name'] + '/main_workflow/'
+            ' ' +  dir_template.replace('subworkflows/', 'main_workflow')
 
         put_workflows_scripts = []
         for job in self.jobs:
@@ -147,9 +153,9 @@ class OozieWrapper(object):
             put_workflows_scripts.append('hdfs dfs -put ' + job + '.xml ' + job + '.properties ' + \
                 files_string + ' ' + dir_template + job)
 
-        # Do not put main workflow on hdfs - wait for run command.
-        put_main_workflow = []
-
+        # Do not put main workflow properties on hdfs - wait for run command.
+        put_main_workflow = ['hdfs dfs -put ' + self.job_properties['name'] + \
+            '.xml ' + dir_template.replace('subworkflows/', 'main_workflow')]
 
         # Submit each command via subprocess call.
         # ADD ERROR HANDLING!
@@ -161,9 +167,9 @@ class OozieWrapper(object):
 
         # THIS MAY ALL BE REPLACED BY API CALLS.
 
-        # Get workflow name.
+        # Get workflow name. Uses current working directory where main job properties file exists.
         submit_workflow = "oozie job -oozie " + self.cluster_properties['oozie']['url'] + \
-            " -config /home/USER/DIR/JOB.properties -submit"
+            " -config " + self.job_properties['name'] + ".properties -submit"
         to_awk = subprocess.Popen(submit_workflow.split(' '), stdout=subprocess.PIPE)
         get_awk_workflow = ("awk", "-F:", "{print $2}")
         awk_workflow_name = subprocess.check_output(get_awk_workflow, stdin=to_awk.stdout)
@@ -244,7 +250,7 @@ class OozieWrapper(object):
                 self.graph.append((0, edge))
 
 
-    def _createForks(self):
+    def _createForks(self, run_user):
         '''Generate xml with workflow dependencies by calling subworkflows.'''
 
         # From self.graph, determine first action (either fork or action depending on
@@ -280,7 +286,7 @@ class OozieWrapper(object):
             if bucket_counter[bucket] > 1:
                 join_node = 'join-' + str(bucket)
                 sub_config = list(itertools.chain(*[
-                        self.xmlFactory.boilerplateSubworkflow(job, self.jobs, join_node) \
+                        self.xmlFactory.boilerplateSubworkflow(run_user, job, self.jobs, join_node) \
                             for (b, job) in self.graph if b == bucket]))
                 forks[bucket] = [(2,'<fork name="fork-' + str(bucket) + '">')] + \
                     [(2, '<path start="subworkflow-' + self.jobs[job]['jobKey'] + \
@@ -290,7 +296,7 @@ class OozieWrapper(object):
                     sub_config
             else:
                 relevant_job = [key for (b, key) in self.graph if b == bucket][0]
-                forks[bucket] = self.xmlFactory.boilerplateSubworkflow(relevant_job, self.jobs, next_action)
+                forks[bucket] = self.xmlFactory.boilerplateSubworkflow(run_user, relevant_job, self.jobs, next_action)
 
         # Generate entire xml bundle of workflow forks from bucketed entries in "forks" list.
         forks = list(itertools.chain(*forks))
