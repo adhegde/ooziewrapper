@@ -1,7 +1,7 @@
 Introducing `ooziewrapper`
 --------------------------
 
-Full documentation and a user's guide for are found `here<http://www.google.com/>`_.
+Full documentation and a user's guide for are found `here <http://www.google.com/>`_.
 
 Installation
 ~~~~~~~~~~~~
@@ -27,37 +27,37 @@ Goals of `ooziewrapper` (to name a few)
 
 1. Wrap job deployment process as part of development.
 
-	- Common observed development pattern:
-		- Developer writes code in standalone script.
-		- Developer tinkers with job submission until it works.
-		- Developer spends lots of time configuring OozieWorkflow.
-		- Everything falls apart (and / or a code change occurs), start over.
+a. Common observed development pattern:
+	- Developer writes code in standalone script.
+	- Developer tinkers with job submission until it works.
+	- Developer spends lots of time configuring OozieWorkflow.
+	- Everything falls apart (and / or a code change occurs), start over.
 
-	- With `ooziewrapper`:
-		- Developer packages all job artifacts in a directory from the start.
-		- This includes job resource configuration (critical for Spark).
-		- No latency between development and deployment (continuous integration, anyone?).
+b. With `ooziewrapper`:
+	- Developer packages all job artifacts in a directory from the start.
+	- This includes job resource configuration (critical for Spark).
+	- No latency between development and deployment (continuous integration, anyone?).
 
 2. Configuration as code.
 
-	- Smooth out promotion between environments.
-		- Cluster configuration is kept separate from the development process.
-		- All the developer has to do is change an input from 'test' to 'prod'.
-		- When updates happen to cluster configuration, the code will not break.
+a. Smooth out promotion between environments.
+	- Cluster configuration is kept separate from the development process.
+	- All the developer has to do is change an input from 'test' to 'prod'.
+	- When updates happen to cluster configuration, the code will not break.
 
-	- Scales for the future.
-		- Will make deploying jobs on multiple clusters much easier.
-		- Will transition into a cloud deployment.
+b. Scales for the future.
+	- Will make deploying jobs on multiple clusters much easier.
+	- Will transition into a cloud deployment.
 
 3. Increase speed of development:
 
-	- Get rid of the UI.
-		- UIs require manual input that could just as easily be typed in a text document.
-		- UI configuration and input are hard to transfer between environments.
-		- The UI is completely unaware of job dependencies.
+a. Get rid of the UI.
+	- UIs require manual input that could just as easily be typed in a text document.
+	- UI configuration and input are hard to transfer between environments.
+	- The UI is completely unaware of job dependencies.
 
-	- Seamlessly integrate code changes.
-		- No more, "Hey did you run that with our updated configuration?"
+b. Seamlessly integrate code changes.
+	- No more, "Hey did you run that with our updated configuration?"
 
 Why Wrap Oozie and Not Use Airflow, etc?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -65,7 +65,7 @@ Why Wrap Oozie and Not Use Airflow, etc?
 1. Airflow reinvents the wheel. I'm not that smart.
 2. Oozie has a lot of desirable properties and is native to Hadoop.
 3. The wrapper allows me to integrate with other services seemlessly, ex. with Tidal.
-	- If it has an API or CLI, I can work with it.
+	If it has an API or CLI, I can work with it.
 
 Dependencies
 ~~~~~~~~~~~~
