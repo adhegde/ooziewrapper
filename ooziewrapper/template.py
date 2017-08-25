@@ -5,6 +5,7 @@ and an xml with subworkflows all wrapped together.
 THINGS TO TRACK
 ===============
 Are app path and properties adequately passed to subworkflows in xmlfactory?
+Add actual logic for successful submission of workflow.
 Figure out if there is more to Hive actions.
 Should subprocess.call be changed to subprocess.Popen?
 Add error handling to submit method.
@@ -81,13 +82,25 @@ class OozieWrapper(object):
 
 
     def git_sync(self, git_repo):
-        '''If applicable, sync remote repository with necessary code files.'''
+        '''
+        If applicable, sync remote repository with necessary code files.
+        Note: I thought about using pygit2, but this requires more installation
+        than I currently want to use for this module.
+        '''
 
-        # BETTER TO USE GITHUB API OF SOME KIND?
+        # Scrub repo name to get only the name of the repository.
+        # This is pretty nastily hardcoded at this point, as it centrally
+        # references GitHub.
+        repo_name = git_repo.replace('https://github.com/', '') \
+            .replace('git@github.com:', '').replace('.git', '').split('/')[1]
 
         if git_repo is not None:
-            sync = 'git pull ' + git_repo
-            subprocess.call(sync.split(' '))
+            if os.path.isdir(repo_name):
+                pull = 'git pull ' + git_repo
+                subprocess.call(pull.split(' '))
+            else:
+                sync = 'git clone ' + git_repo
+                subprocess.call(sync.split(' '))
 
 
     def submit(self):
@@ -183,13 +196,13 @@ class OozieWrapper(object):
             self.submitted = True
 
         # Clean up xml and properties files.
-        #for workflow in self.xml:
-        #    if workflow[0] == 'forked':
-        #        file_name = self.job_properties['name']
-        #    else:
-        #        file_name = workflow[0]
-        #    os.remove(file_name + '.xml')
-        #   os.remove(file_name + '.properties')
+        for workflow in self.xml:
+            if workflow[0] == 'forked':
+                file_name = self.job_properties['name']
+            else:
+                file_name = workflow[0]
+            os.remove(file_name + '.xml')
+            os.remove(file_name + '.properties')
 
 
     def run(self):

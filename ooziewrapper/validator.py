@@ -184,3 +184,5 @@ def validate_job(job, properties):
     # Could ask for response prompting users whether they are ok submitting to etl, for example.
 
     # Check that email is specified if email is required.
+
+    # Scrub git_repo

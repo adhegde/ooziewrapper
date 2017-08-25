@@ -6,11 +6,11 @@ import os
 from ooziewrapper.template import OozieWrapper
 
 # Load example data if necessary.
-if not os.path.isfile('./pride_and_prejudice.txt'):
-    os.system('python load_text_data.py')
+#if not os.path.isfile('pride_and_prejudice.txt'):
+#    os.system('python load_text_data.py')
 
 # List location of cluster properties file.
-properties = './cluster_properties.yml'
+properties = 'cluster_properties.yml'
 
 # Implement shared properties. This is required and must contain 'name' and 'queue'.
 # 'queue' is a resource pool you've defined on your Hadoop cluster.
@@ -61,6 +61,11 @@ test = OozieWrapper(
     properties_path = properties,
     git_repo = 'https://github.com/anthonyjgatti/spark-wordcount-workflow.git'
 )
+
+# git_repo is an optional argument that can be omittied and defaults to none.
+# If you are working in the repo locally, it is best to leave this out.
+# Generally, you would want this script in a separate repository or at a
+# higher directory structure.
 
 test.submit()
 test.run()

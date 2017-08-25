@@ -17,7 +17,7 @@ class Factory(object):
             'nameNode=hdfs://nameservice-prod',
             'resourceManager=yarnRM',
             'jobName=' + job_properties['name'],
-            'jobTracker=yarnRM,
+            'jobTracker=yarnRM',
             'userName=' + run_user,
             'hive2_jdbc_url=' + cluster_properties['hive2']['jdbc']['url'],
             'hive2_server_principal=' + cluster_properties['hive2']['server']['principal'],
