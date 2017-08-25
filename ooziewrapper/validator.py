@@ -169,6 +169,7 @@ def validate_job(job, properties):
             # raise FileNotFound(f, sys.path[0])
 
     # Scrub job names?
+    # Scrub dependency list!
     # Definitely make sure that the dependency lists correspond to actual job names.
 
     # Check that self.job_properties has keys queue and name

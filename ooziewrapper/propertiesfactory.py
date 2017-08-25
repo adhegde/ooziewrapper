@@ -17,7 +17,7 @@ class Factory(object):
             'nameNode=hdfs://nameservice-prod',
             'resourceManager=yarnRM',
             'jobName=' + job_properties['name'],
-            'jobTracker=' + 'ADD JOB TRACKER HERE',
+            'jobTracker=yarnRM,
             'userName=' + run_user,
             'hive2_jdbc_url=' + cluster_properties['hive2']['jdbc']['url'],
             'hive2_server_principal=' + cluster_properties['hive2']['server']['principal'],
@@ -50,5 +50,4 @@ class Factory(object):
             return []
 
         # IS THIS PART NECESSARY?
-        #output_properties.append('oozie.use.system.libpath=true') \
-        #    .append('oozie.wf.rerun.failnodes=true')
+        #output_properties.append('oozie.wf.rerun.failnodes=true')

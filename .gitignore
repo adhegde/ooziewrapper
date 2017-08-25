@@ -3,3 +3,4 @@
 
 # Python Build
 *.pyc
+*__pycache__*

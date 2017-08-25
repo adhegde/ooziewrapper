@@ -2,11 +2,15 @@
 import sys
 sys.path.append('/home/anthony/code/ooziewrapper')
 
-
+import os
 from ooziewrapper.template import OozieWrapper
 
+# Load example data if necessary.
+if not os.path.isfile('./pride_and_prejudice.txt'):
+    os.system('python load_text_data.py')
+
 # List location of cluster properties file.
-properties = '/home/anthony/code/ooziewrapper/examples/cluster_properties.yml'
+properties = './cluster_properties.yml'
 
 # Implement shared properties. This is required and must contain 'name' and 'queue'.
 # 'queue' is a resource pool you've defined on your Hadoop cluster.
@@ -20,33 +24,33 @@ shared = {
 job0 = {
     'jobType': 'shell',
     'jobName': 'spark_transform_0',
-    'files': ['spark_submit_0.sh', 'spark_transform_0.py']
+    'files': ['spark_submit_pnp.sh', 'spark_wc_prideandprejudice.py']
 }
 
 job1 = {
     'jobType': 'shell',
     'jobName': 'spark_transform_1',
-    'files': ['spark_submit_1.sh', 'spark_transform_1.py']
+    'files': ['spark_submit_sas.sh', 'spark_wc_senseandsensibility.py']
 }
 
 job2 = {
     'jobType': 'hive',
     'jobName': 'hive_transform_2',
-    'files': ['hive_transform_2.sql'],
+    'files': ['pnp_letter_start.sql'],
     'dependsOn': [job0, job1] # This references the Python dictionaries above.
 }
 
 job3 = {
     'jobType': 'hive',
     'jobName': 'hive_transform_3',
-    'files': ['hive_transform_3.sql'],
+    'files': ['sas_letter_start.sql'],
     'dependsOn': [job0, job1]
 }
 
 job4 = {
     'jobType': 'hive',
     'jobName': 'hive_transform_4',
-    'files': ['hive_transform4.sql'],
+    'files': ['wc_join.sql'],
     'dependsOn': [job2, job3]
 }
 
@@ -55,8 +59,7 @@ test = OozieWrapper(
     shared_properties = shared,
     job_list = [job0, job1, job2, job3, job4],
     properties_path = properties,
-    git_repo = None
-    # git_repo = "https://github.com/anthonyjgatti/spark-wordcount-workflow.git"
+    git_repo = 'https://github.com/anthonyjgatti/spark-wordcount-workflow.git'
 )
 
 test.submit()
