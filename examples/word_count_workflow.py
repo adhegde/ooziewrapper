@@ -1,9 +1,4 @@
-# TEMPORARY
-import sys
-sys.path.append('/home/anthony/code/ooziewrapper')
-
 # Load example data if necessary.
-# PEG TO CURRENT DIRECTORY
 import os
 if not os.path.isfile('pride_and_prejudice.txt'):
     os.system('python load_examples.py')
