@@ -30,17 +30,16 @@ Your mileage may vary with other types of deployments.
 
 Goals of `ooziewrapper` (to name a few)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+1. Wrap job deployment process as part of development
 
-1. Wrap job deployment process as part of development.
-
-One common development pattern I observed is as follows:
+A common development pattern I observed is as follows:
 
 - Developer writes code in standalone script.
 - Developer tinkers with job submission until it works.
 - Developer spends lots of time configuring OozieWorkflow.
 - Everything falls apart (and / or a code change occurs), start over.
 
-With `ooziewrapper`:
+  With `ooziewrapper`:
 - Developer packages all job artifacts in a directory from the start.
 - This includes job resource configuration (critical for Spark).
 - No latency between development and deployment (continuous integration, anyone?).
