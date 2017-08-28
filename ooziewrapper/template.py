@@ -13,7 +13,7 @@ How to trackdown logs and output them to a standard location.
 Add unit and integration tests.
 Build test for changes in yaml file - what to do if yaml file changes and causes a break.
 Add more actions to xmlfactory.
-Add print_dag method.
+Make sure we can reference global properties file location.
 ===============
 '''
 
@@ -251,6 +251,7 @@ class OozieWrapper(object):
             if 'dependsOn' in self.jobs[job]:
                 for dependency in self.jobs[job]['dependsOn']:
                     G.add_edge(dependency['jobKey'], self.jobs[job]['jobKey'])
+        self.dag_graph = G # For printing purposes.
 
         # Sort jobs in graph using topological sort, assigning job buckets.
         # Jobs within the same bucket will be kicked off simultaneously.

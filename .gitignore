@@ -8,6 +8,8 @@
 # Example files.
 pnp_letter*
 sas_letter*
+pride_and_prejudice.txt
+sense_and_sensibility.txt
 spark_submit_*
 spark_wc_*
 wc_*

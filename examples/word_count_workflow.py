@@ -2,14 +2,17 @@
 import sys
 sys.path.append('/home/anthony/code/ooziewrapper')
 
+# Load example data if necessary.
+# PEG TO CURRENT DIRECTORY
 import os
+if not os.path.isfile('pride_and_prejudice.txt'):
+    os.system('python load_examples.py')
+
+# Begin example code.
 from ooziewrapper.template import OozieWrapper
 
-# Load example data if necessary.
-#if not os.path.isfile('pride_and_prejudice.txt'):
-#    os.system('python load_text_data.py')
-
 # List location of cluster properties file.
+# Best to keep this under version control.
 properties = 'cluster_properties.yml'
 
 # Implement shared properties. This is required and must contain 'name' and 'queue'.

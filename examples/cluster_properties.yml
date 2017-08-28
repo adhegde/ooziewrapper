@@ -3,8 +3,6 @@ environments: ['dev','test','prod']
 
 # Add hive site xml?
 # Update hive site xml.
-# Change jobTracker to yarmRM or ditch jobTracker
-# Add -f commander"
 
 # Dev environment properties.
 dev:
