@@ -33,25 +33,26 @@ Goals of `ooziewrapper` (to name a few)
 
 1. Wrap job deployment process as part of development.
 2. Smooth out promotion between environments using "configuration as code".
-3. Increase speed of development by removing the UI dependency and allowing
-seemless integration of code changes.
-
+3. Increase speed of development by removing the UI dependency and allowing seemless integration of code changes.
 
 A common development pattern I observed is as follows:
-- Developer writes code in standalone script.
-- Developer tinkers with job submission until it works.
-- Developer spends lots of time configuring OozieWorkflow.
-- Everything falls apart (and / or a code change occurs), start over.
+
+* Developer writes code in standalone script.
+* Developer tinkers with job submission until it works.
+* Developer spends lots of time configuring OozieWorkflow.
+* Everything falls apart (and / or a code change occurs), start over.
 
 With `ooziewrapper`:
-- Developer packages all job artifacts in a directory from the start.
-- This includes job resource configuration (critical for Spark).
-- No latency between development and deployment (continuous integration, anyone?).
+
+* Developer packages all job artifacts in a directory from the start.
+* This includes job resource configuration (critical for Spark).
+* No latency between development and deployment (continuous integration, anyone?).
 
 This is achieved through the following features:
-- Cluster configuration is kept separate from the development process.
-- All the developer has to do is change an input from 'test' to 'prod'.
-- When updates happen to cluster configuration, the code will not break.
+
+* Cluster configuration is kept separate from the development process.
+* All the developer has to do is change an input from 'test' to 'prod'.
+* When updates happen to cluster configuration, the code will not break.
 
 This makes changes to code much easier to version, update, and control.
 
@@ -59,8 +60,7 @@ Why Wrap Oozie and Not Use Airflow, etc?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 1. Airflow is a completely new scheduling methodology. I'm not that smart.
 2. Oozie has a lot of desirable properties and is native to Hadoop.
-3. The wrapper allows me to integrate with other services seemlessly, ex. with Tidal. 
-If it has an API or CLI, I can work with it.
+3. The wrapper allows me to integrate with other services seemlessly, ex. with Tidal. If it has an API or CLI, I can work with it.
 
 Specifying Cluster Properties
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -71,9 +71,6 @@ https://github.com/anthonyjgatti/ooziewrapper/blob/master/examples/cluster_prope
 Dependencies
 ~~~~~~~~~~~~
 
-This module relies on networkx and PyYAML as the only non-standard Python modules.
-The only other requirement is that you run this on a machine that has awk installed.
-In general this is intended to be developed and deployed on a Linux machine with
-access to the Hadoop cluster.
+This module relies on networkx and PyYAML as the only non-standard Python modules. The only other requirement is that you run this on a machine that has awk installed. In general this is intended to be developed and deployed on a Linux machine with access to the Hadoop cluster.
 
 
