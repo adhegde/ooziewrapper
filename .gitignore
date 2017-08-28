@@ -4,3 +4,11 @@
 # Python Build
 *.pyc
 *__pycache__*
+
+# Example files.
+pnp_letter*
+sas_letter*
+spark_submit_*
+spark_wc_*
+wc_*
+README.md
