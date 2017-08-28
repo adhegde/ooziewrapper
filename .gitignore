@@ -13,4 +13,5 @@ sense_and_sensibility.txt
 spark_submit_*
 spark_wc_*
 wc_*
+*spark-wordcount-workflow*
 README.md
