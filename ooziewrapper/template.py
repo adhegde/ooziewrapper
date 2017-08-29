@@ -94,15 +94,14 @@ class OozieWrapper(object):
         repo_name = git_repo.replace('https://github.com/', '') \
             .replace('git@github.com:', '').replace('.git', '').split('/')[1]
 
+        # The "git pull" assumes git < 1.8.5, which is what I am working on currently.
+        # I am hoping to change this to "git -C" at some point.
         if git_repo is not None:
             git_dir = os.getcwd() + '/' + repo_name
-            print(git_dir)
             if os.path.isdir(git_dir):
-                print('THERE WAS A DIRECTORY')
-                pull = 'cd ' + git_dir + ' && git pull'
+                pull = 'git --git-dir=' + git_dir + '/.git pull'
                 subprocess.call(pull.split(' '))
             else:
-                print('THERE WAS NO DIRECTORY')
                 sync = 'git clone ' + git_repo
                 subprocess.call(sync.split(' '))
 
