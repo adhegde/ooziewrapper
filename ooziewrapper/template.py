@@ -227,19 +227,20 @@ class OozieWrapper(object):
         # Scrub repo name to get only the name of the repository.
         # This is pretty nastily hardcoded at this point, as it centrally
         # references GitHub.
-        repo_name = git_repo.replace('https://github.com/', '') \
+        repo_name = self.git_repo.replace('https://github.com/', '') \
             .replace('git@github.com:', '').replace('.git', '').split('/')[1]
 
         # The "git pull" assumes git < 1.8.5, which is what I am working on currently.
         # I am hoping to change this to "git -C" at some point.
         if self.git_repo is not None:
+            self.git_dir = os.getcwd() + '/' + repo_name
             if os.path.isdir(self.git_dir):
                 pull = 'git --git-dir=' + self.git_dir + '/.git pull'
                 subprocess.call(pull.split(' '))
             else:
                 sync = 'git clone ' + self.git_repo
                 subprocess.call(sync.split(' '))
-                
+
 
     def _generateDAG(self):
         '''
