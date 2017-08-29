@@ -243,7 +243,8 @@ class OozieWrapper(object):
             self.git_dir = os.getcwd()
 
         # Change file names to reference relevant directory.
-        self.jobs[job]['files'] = [self.git_dir + '/' + f for f in self.jobs[job]['files']]
+        for job in self.jobs:
+            self.jobs[job]['files'] = [self.git_dir + '/' + f for f in self.jobs[job]['files']]
 
 
     def _generateDAG(self):
