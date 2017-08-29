@@ -148,7 +148,7 @@ def validate_keys(job, properties):
             raise KeyException(job)
 
 
-def validate_job(job, properties):
+def validate_job(job, properties, git_dir ):
     '''Check if all workflow specifications are valid.'''
 
     # Check that shared job properties contain resource pool and name.
@@ -180,9 +180,8 @@ def validate_job(job, properties):
 
     # Check if all workflow files are found locally.
     for f in job['files']:
-        print(f)
         if not Path(f).is_file():
-            raise FileNotFound(f, f)
+            raise FileNotFound(f, git_dir)
 
     # Scrub job names?
     # Scrub dependency list!

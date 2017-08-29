@@ -62,6 +62,7 @@ class OozieWrapper(object):
 
         # Git sync on files if a repository is passed.
         self._git_sync()
+        print(self.jobs)
 
         # Assign each job dictionary a key-value pair in the main jobs dictionary.
         # Also call job validation functions.
@@ -74,7 +75,7 @@ class OozieWrapper(object):
             for prop in self.job_properties:
                 job[prop] = self.job_properties[prop]
 
-            validator.validate_job(job, self.job_properties)
+            validator.validate_job(job, self.job_properties, self.git_dir)
 
         # Instantiate job layout as a graph, with nodes bucketed by job order.
         self._generateDAG()
@@ -139,8 +140,6 @@ class OozieWrapper(object):
 
         put_workflows_scripts = []
         for job in self.jobs:
-            if 'files' in self.jobs[job] and self.git_repo is not None:
-                self.jobs[job]['files'] = [self.git_dir + '/' + f for f in self.jobs[job]['files']]
 
             files_string = ' '.join(self.jobs[job]['files']) if 'files' in self.jobs[job] else ''
             put_workflows_scripts.append('hdfs dfs -put -f ' + job + '.xml ' + job + '.properties ' + \
@@ -240,6 +239,11 @@ class OozieWrapper(object):
             else:
                 sync = 'git clone ' + self.git_repo
                 subprocess.call(sync.split(' '))
+        else:
+            self.git_dir = os.getcwd()
+
+        # Change file names to reference relevant directory.
+        self.jobs[job]['files'] = [self.git_dir + '/' + f for f in self.jobs[job]['files']]
 
 
     def _generateDAG(self):
