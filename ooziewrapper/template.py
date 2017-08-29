@@ -96,7 +96,7 @@ class OozieWrapper(object):
 
         if git_repo is not None:
             if os.path.isdir(repo_name):
-                pull = 'git pull ' + git_repo
+                pull = 'cd ./' + repo_name + '; git pull'
                 subprocess.call(pull.split(' '))
             else:
                 sync = 'git clone ' + git_repo

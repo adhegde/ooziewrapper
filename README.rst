@@ -35,7 +35,7 @@ Goals of `ooziewrapper` (to name a few)
 2. Smooth out promotion between environments using "configuration as code".
 3. Increase speed of development by removing the UI dependency and allowing seemless integration of code changes.
 
-A common development pattern I observed is as follows:
+A common development pattern I have observed is as follows:
 
 * Developer writes code in standalone script.
 * Developer tinkers with job submission until it works.
@@ -72,5 +72,3 @@ Dependencies
 ~~~~~~~~~~~~
 
 This module relies on networkx and PyYAML as the only non-standard Python modules. The only other requirement is that you run this on a machine that has awk installed. In general this is intended to be developed and deployed on a Linux machine with access to the Hadoop cluster.
-
-
