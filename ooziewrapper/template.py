@@ -42,11 +42,12 @@ class OozieWrapper(object):
         '''
 
         # Set environment, cluster properties, shared properties, passed jobs,
-        # and email flag as instance variables. Cluster properties and environment
-        # are validated in custom validation method.
+        # git repo, and email flag as instance variables. Cluster properties and
+        # environment are validated in custom validation method.
         self.environment = environment
         self.cluster_properties = validator.validate_properties(properties_path, self.environment)
         self.job_properties = shared_properties
+        self.git_repo = git_repo
         self.jobs = {}
         self.conclusion_email = 'email' in self.job_properties
         self.submitted = False
@@ -60,9 +61,7 @@ class OozieWrapper(object):
             raise validator.ListError('shared_properties.email')
 
         # Git sync on files if a repository is passed.
-        # This assumes credentials to the repository are available.
-        # May be better to replace this with some sync using the GitHub API.
-        self.git_sync(git_repo)
+        self._git_sync()
 
         # Assign each job dictionary a key-value pair in the main jobs dictionary.
         # Also call job validation functions.
@@ -79,31 +78,6 @@ class OozieWrapper(object):
 
         # Instantiate job layout as a graph, with nodes bucketed by job order.
         self._generateDAG()
-
-
-    def git_sync(self, git_repo):
-        '''
-        If applicable, sync remote repository with necessary code files.
-        Note: I thought about using pygit2, but this requires more installation
-        than I currently want to use for this module.
-        '''
-
-        # Scrub repo name to get only the name of the repository.
-        # This is pretty nastily hardcoded at this point, as it centrally
-        # references GitHub.
-        repo_name = git_repo.replace('https://github.com/', '') \
-            .replace('git@github.com:', '').replace('.git', '').split('/')[1]
-
-        # The "git pull" assumes git < 1.8.5, which is what I am working on currently.
-        # I am hoping to change this to "git -C" at some point.
-        if git_repo is not None:
-            git_dir = os.getcwd() + '/' + repo_name
-            if os.path.isdir(git_dir):
-                pull = 'git --git-dir=' + git_dir + '/.git pull'
-                subprocess.call(pull.split(' '))
-            else:
-                sync = 'git clone ' + git_repo
-                subprocess.call(sync.split(' '))
 
 
     def submit(self):
@@ -165,6 +139,9 @@ class OozieWrapper(object):
 
         put_workflows_scripts = []
         for job in self.jobs:
+            if 'files' in self.jobs[job] and self.git_repo is not None:
+                self.jobs[job]['files'] = [self.git_dir + '/' + f for f in self.jobs[job]['files']]
+
             files_string = ' '.join(self.jobs[job]['files']) if 'files' in self.jobs[job] else ''
             put_workflows_scripts.append('hdfs dfs -put -f ' + job + '.xml ' + job + '.properties ' + \
                 files_string + ' ' + dir_template + job)
@@ -238,6 +215,31 @@ class OozieWrapper(object):
 
         # ADD HERE
 
+
+    def _git_sync(self):
+        '''
+        If applicable, sync remote repository with necessary code files. This
+        assumes credentials to the repository can be supplied.
+        Note: I thought about using pygit2, but this requires more installation
+        than I currently want to use for this module.
+        '''
+
+        # Scrub repo name to get only the name of the repository.
+        # This is pretty nastily hardcoded at this point, as it centrally
+        # references GitHub.
+        repo_name = git_repo.replace('https://github.com/', '') \
+            .replace('git@github.com:', '').replace('.git', '').split('/')[1]
+
+        # The "git pull" assumes git < 1.8.5, which is what I am working on currently.
+        # I am hoping to change this to "git -C" at some point.
+        if self.git_repo is not None:
+            if os.path.isdir(self.git_dir):
+                pull = 'git --git-dir=' + self.git_dir + '/.git pull'
+                subprocess.call(pull.split(' '))
+            else:
+                sync = 'git clone ' + self.git_repo
+                subprocess.call(sync.split(' '))
+                
 
     def _generateDAG(self):
         '''

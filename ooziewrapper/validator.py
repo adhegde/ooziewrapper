@@ -1,6 +1,7 @@
 '''Define custom error classes that raise when user inputs an invalid configuration.'''
 
 # Import standard modules.
+import os
 import sys
 from pathlib import Path
 
@@ -102,6 +103,18 @@ class FileRequiredError(Exception):
         super(FileRequiredError, self).__init__(self.message)
 
 
+class ShellActionError(Exception):
+    '''Raise when users pass a shell action and the first file is not a .sh file.'''
+
+    def __init__(self, input_job):
+
+        self.message = "The first file listed in " + input_job['jobName'] + \
+            " must be of type '.sh' with a .sh extension. This is because" + \
+            " the shell action xml adds an <exec> tag for the shell script" + \
+            " which is configured to be the first file in your list."
+        super(ShellActionError, self).__init__(self.message)
+
+
 # Begin utility functions called by template.py to validate job pieces.
 def validate_properties(properties, environment):
     '''Check that all necessary cluster properties are listed.'''
@@ -156,6 +169,10 @@ def validate_job(job, properties):
     if job['jobType'] in ['shell', 'hive'] and 'files' not in job:
         raise FileRequiredError(job)
 
+    # Check that shell actions actually list the shell script as the first file.
+    if job['jobType'] == 'shell' and not job['files'][0].endswith('.sh'):
+        raise ShellActionError(job)
+
     # Check that list of files is passed as a list.
     if 'files' in job:
         if type(job['files']) != list:
@@ -163,18 +180,12 @@ def validate_job(job, properties):
 
     # Check if all workflow files are found locally.
     for f in job['files']:
-        if not Path(sys.path[0] + '/' + f).is_file():
-            raise FileNotFound(f, sys.path[0])
+        if not Path(os.getcwd() + '/' + f).is_file():
+            raise FileNotFound(f, os.getcwd())
 
     # Scrub job names?
     # Scrub dependency list!
     # Definitely make sure that the dependency lists correspond to actual job names.
-
-    # Check that self.job_properties has keys queue and name
-
-    # Check if shell action jobs have sh script for <exec> argument as first argument.
-    # Right now, _oozieConfigShell assumes the first element of d['files'] is the
-    # desired argument for <exec></exec> just above the file list.
 
     # Check if hive action jobs have desired sql script as the first file.
 
