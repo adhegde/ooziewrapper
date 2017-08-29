@@ -99,7 +99,7 @@ class OozieWrapper(object):
             print(git_dir)
             if os.path.isdir(git_dir):
                 print('THERE WAS A DIRECTORY')
-                pull = 'cd ./' + repo_name + '; git pull'
+                pull = 'cd ' + git_dir + ' && git pull'
                 subprocess.call(pull.split(' '))
             else:
                 print('THERE WAS NO DIRECTORY')
