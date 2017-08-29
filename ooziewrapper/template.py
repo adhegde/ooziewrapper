@@ -164,11 +164,11 @@ class OozieWrapper(object):
         put_workflows_scripts = []
         for job in self.jobs:
             files_string = ' '.join(self.jobs[job]['files']) if 'files' in self.jobs[job] else ''
-            put_workflows_scripts.append('hdfs dfs -put ' + job + '.xml ' + job + '.properties ' + \
+            put_workflows_scripts.append('hdfs dfs -put -f ' + job + '.xml ' + job + '.properties ' + \
                 files_string + ' ' + dir_template + job)
 
         # Do not put main workflow properties on hdfs - wait for run command.
-        put_main_workflow = ['hdfs dfs -put ' + self.job_properties['name'] + \
+        put_main_workflow = ['hdfs dfs -put -f ' + self.job_properties['name'] + \
             '.xml ' + dir_template.replace('subworkflows/', 'main_workflow')]
 
         # Submit each command via subprocess call.
