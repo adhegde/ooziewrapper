@@ -95,7 +95,7 @@ class OozieWrapper(object):
             .replace('git@github.com:', '').replace('.git', '').split('/')[1]
 
         if git_repo is not None:
-            git_dir = os.path.dirname(os.path.realpath(__file__)) + '/' + repo_name
+            git_dir = os.getcwd() + '/' + repo_name
             print(git_dir)
             if os.path.isdir(git_dir):
                 print('THERE WAS A DIRECTORY')

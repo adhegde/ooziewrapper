@@ -1,5 +1,10 @@
 ## Notes on `cluster_properties.yml`.
 
+See the file `cluster_properties.yml` in this directory for an example of the
+structure of the cluster properties file. As of now, __all the properties listed
+in the example are required__. I am working on changing this and / or including
+a check for required properties in the validation process.
+
 ## Notes on `word_count_workflow.py`.
 
 We've left the example script `word_count_workflow.py` clean without comments so
@@ -21,3 +26,8 @@ that was specified above in the code.
 
 * The 'git_repo' is an optional argument intended to point the remote repository
 for your code. Git is currently the only supported version control system.
+
+* If you use the `git_repo` argument, I would suggest keeping your workflow python
+file __in a separate directory__ from your project codebase (for example, having
+an `oozie_workflows` repository might be preferable). This will make things a
+lot simpler to coordinate in my mind.
