@@ -95,7 +95,8 @@ class OozieWrapper(object):
             .replace('git@github.com:', '').replace('.git', '').split('/')[1]
 
         if git_repo is not None:
-            if os.path.isdir(repo_name):
+            git_dir = os.path.dirname(os.path.realpath(__file__)) + '/' + repo_name
+            if os.path.isdir(git_dir):
                 pull = 'cd ./' + repo_name + '; git pull'
                 subprocess.call(pull.split(' '))
             else:
