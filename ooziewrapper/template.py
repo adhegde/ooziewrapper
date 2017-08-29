@@ -96,10 +96,13 @@ class OozieWrapper(object):
 
         if git_repo is not None:
             git_dir = os.path.dirname(os.path.realpath(__file__)) + '/' + repo_name
+            print(git_dir)
             if os.path.isdir(git_dir):
+                print('THERE WAS A DIRECTORY')
                 pull = 'cd ./' + repo_name + '; git pull'
                 subprocess.call(pull.split(' '))
             else:
+                print('THERE WAS NO DIRECTORY')
                 sync = 'git clone ' + git_repo
                 subprocess.call(sync.split(' '))
 
