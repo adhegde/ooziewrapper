@@ -62,11 +62,14 @@ class OozieWrapper(object):
 
         # Git sync on files if a repository is passed.
         self._git_sync()
-        print(self.jobs)
 
         # Assign each job dictionary a key-value pair in the main jobs dictionary.
         # Also call job validation functions.
         for job in job_list:
+
+            # Change directory reference in file names before validation.
+            if 'files' in job:
+                job['files'] = [self.git_dir + '/' + f for f in job['files']]
 
             validator.validate_keys(job, self.job_properties)
 
@@ -241,10 +244,6 @@ class OozieWrapper(object):
                 subprocess.call(sync.split(' '))
         else:
             self.git_dir = os.getcwd()
-
-        # Change file names to reference relevant directory.
-        for job in self.jobs:
-            self.jobs[job]['files'] = [self.git_dir + '/' + f for f in self.jobs[job]['files']]
 
 
     def _generateDAG(self):
