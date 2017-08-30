@@ -31,9 +31,13 @@ class Factory(object):
     def _make_job_properties(self, job, jobs):
         '''Generate job properties for specific job.'''
 
+        # Add workflow directory and check if libpath needs specified.
         this_output = self.output_properties + ['wfDir=' + self.dir_template + job]
         files = jobs[job]['files'] if 'files' in jobs[job] else ''
         this_output += self._add_libs(files)
+
+        # Add workflow application path.
+        this_output += ['oozie.wf.application.path=' + self.dir_template + job]
 
         return '\n'.join(p for p in this_output) + '\n'
 
