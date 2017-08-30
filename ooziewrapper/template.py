@@ -160,19 +160,19 @@ class OozieWrapper(object):
         # Validate oozie workflows through cli call.
         # See here: https://oozie.apache.org/docs/3.1.3-incubating/DG_CommandLineTool.html#Common_CLI_Options
 
-        # THIS MAY ALL BE REPLACED BY API CALLS.
-
         # Get workflow name. Uses current working directory where main job properties file exists.
         submit_workflow = "oozie job -oozie " + self.cluster_properties['oozie']['url'] + \
             " -config " + self.job_properties['name'] + ".properties -submit"
-        to_awk = subprocess.Popen(submit_workflow.split(' '), stdout=subprocess.PIPE)
-        get_awk_workflow = ("awk", "-F:", "{print $2}")
-        awk_workflow_name = subprocess.check_output(get_awk_workflow, stdin=to_awk.stdout)
-        workflow_name = awk_workflow_name.decode('utf-8').strip('\n| ')
-        to_awk.wait()
+        #to_awk = subprocess.Popen(submit_workflow.split(' '), stdout=subprocess.PIPE)
+        #get_awk_workflow = ("awk", "-F:", "{print $2}")
+        #awk_workflow_name = subprocess.check_output(get_awk_workflow, stdin=to_awk.stdout)
+        #workflow_name = awk_workflow_name.decode('utf-8').strip('\n| ')
+        #to_awk.wait()
+        submit = subprocess.check_output(submit_workflow.split(' '))
+        print(submit)
 
         # Check for success.
-        success = True # PLACEHOLDER
+        success = False # PLACEHOLDER
         if success:
             self.workflow_name = workflow_name
             self.submitted = True
